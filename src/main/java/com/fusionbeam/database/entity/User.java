@@ -1,6 +1,11 @@
 package com.fusionbeam.database.entity;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import javax.persistence.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,13 +16,63 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "user")
-public class User {
+public class User extends AuditableImpl{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(name = "user_name", nullable = false)
+    private String userName;
+
+    @Column(name = "password", nullable = false)
+    private String password;
+
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
     @Column(name = "last_name", nullable = false)
     private String lastName;
+
+    @OneToMany(orphanRemoval = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private Set<Role> roles;
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
+
+    public User() {
+        roles = new HashSet<Role>();
+    }
+
+    /**
+     * Gets the full name of the person.
+     *
+     * @return The full name of the person.
+     */
+    @Transient
+    public String getName() {
+        StringBuilder name = new StringBuilder();
+
+        name.append(firstName);
+        name.append(" ");
+        name.append(lastName);
+
+        return name.toString();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        setLastModifiedTime(new Date());
+    }
+
+    @PrePersist
+    public void prePersist() {
+        Date now = new Date();
+        setCreatedTime(now);
+        setLastModifiedTime(now);
+    }
 
     public Long getId() {
         return id;
@@ -33,5 +88,37 @@ public class User {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

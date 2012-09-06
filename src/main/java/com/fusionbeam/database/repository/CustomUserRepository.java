@@ -12,6 +12,9 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public interface CustomUserRepository {
-    public String returnTest();
     public List<User> findAllUsers();
+
+    public long findUserCount(String lastName);
+
+    public List<User> findUserForPage(String lastname, int page);
 }

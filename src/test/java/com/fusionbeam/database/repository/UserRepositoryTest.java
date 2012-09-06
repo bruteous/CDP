@@ -1,6 +1,7 @@
 package com.fusionbeam.database.repository;
 
 import com.fusionbeam.database.config.DatabaseContext;
+import com.fusionbeam.database.entity.Role;
 import com.fusionbeam.database.entity.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,7 +11,10 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Set;
 
+import static com.fusionbeam.database.repository.predicates.UserPredicates.lastNameIsLike;
+import static junit.framework.Assert.*;
 import static junit.framework.Assert.assertEquals;
 
 /**
@@ -29,13 +33,116 @@ public class UserRepositoryTest {
     @Test
     public void testCustomMethodCall() {
         User user = new User();
+        user.setUserName("mchen");
+        user.setFirstName("Mike");
         user.setLastName("Chen");
+        user.setPassword("1234");
 
         userRepository.save(user);
 
         List<User> users = userRepository.findAllUsers();
         assertEquals(1, users.size());
+    }
+    @Test
+    public void testCreateUser() {
+        User user = createUser();
+        assertNull(user.getId());
+        User savedUser = userRepository.save(user);
+        assertNotNull(savedUser.getId());
+    }
 
+    private User createUser() {
+        User user = new User();
+        user.setFirstName("Mike");
+        user.setLastName("Chen");
+        user.setUserName("mchen");
+        user.setPassword("12345");
+        return user;
+    }
+    private Role createAdminRole() {
+        Role role = new Role();
+        role.setRoleName("Admin");
+        return role;
+    }
+    private Role createUserRole() {
+        Role role = new Role();
+        role.setRoleName("User");
+        return role;
+    }
+    private Role createSupportRole() {
+        Role role = new Role();
+        role.setRoleName("Support");
+        return role;
+    }
 
+    @Test
+    public void testFindUser() {
+        User user = createUser();
+        userRepository.save(user);
+        User foundUser = userRepository.findOne(user.getId());
+        assertEquals("Mike", foundUser.getFirstName());
+    }
+
+    @Test
+    public void testUpdateUser() {
+        User user = createUser();
+        user = userRepository.save(user);
+        user.setLastName("ChingChing");
+        userRepository.save(user);
+        User foundUser = userRepository.findOne(user.getId());
+        assertEquals("ChingChing", foundUser.getLastName());
+    }
+
+    @Test
+    public void testDeleteUser() {
+        User user = createUser();
+        user = userRepository.save(user);
+        userRepository.delete(user.getId());
+        assertFalse(userRepository.exists(user.getId()));
+    }
+
+    @Test
+    public void testAddAdminRole() {
+        User user = createUser();
+        Role admin = createAdminRole();
+        user.getRoles().add(admin);
+        userRepository.save(user);
+
+        User foundUser = userRepository.findOne(user.getId());
+        assertEquals(1, foundUser.getRoles().size());
+        Set<Role> roles = foundUser.getRoles();
+        Role foundRole = roles.iterator().next();
+        assertEquals("Admin", foundRole.getRoleName());
+    }
+
+    @Test
+    public void testFindByLastName() {
+        User user = createUser();
+        userRepository.save(user);
+
+        List<User> foundUsers = userRepository.find("Chen");
+        assertEquals(foundUsers.get(0).getFirstName(), user.getFirstName());
+        assertEquals(foundUsers.get(0).getLastName(), "Chen");
+
+    }
+
+    @Test
+    public void testFindAllWithSimilarLastNames() {
+        User user = createUser();
+        userRepository.save(user);
+
+        Iterable<User> users = userRepository.findAll(lastNameIsLike("Ch"));
+        assertEquals(users.iterator().next().getLastName(), "Chen");
+
+    }
+
+    @Test
+    public void testPagination() {
+        User user = createUser();
+        user.setLastName("ABC");
+        userRepository.save(user);
+
+        List<User> users = userRepository.findUserForPage("ABC", 0);
+        assertEquals(1, users.size());
     }
 }
