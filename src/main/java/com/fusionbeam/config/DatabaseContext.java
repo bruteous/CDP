@@ -1,4 +1,4 @@
-package com.fusionbeam.database.config;
+package com.fusionbeam.config;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 import org.hibernate.ejb.HibernatePersistence;

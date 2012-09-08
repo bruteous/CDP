@@ -1,6 +1,6 @@
 package com.fusionbeam.database.repository;
 
-import com.fusionbeam.database.config.DatabaseContext;
+import com.fusionbeam.config.DatabaseContext;
 import com.fusionbeam.database.entity.Role;
 import com.fusionbeam.database.entity.User;
 import org.junit.Test;
@@ -46,6 +46,7 @@ public class UserRepositoryTest {
     @Test
     public void testCreateUser() {
         User user = createUser();
+        user.setUserName("mchena");
         assertNull(user.getId());
         User savedUser = userRepository.save(user);
         assertNotNull(savedUser.getId());
@@ -78,6 +79,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUser() {
         User user = createUser();
+        user.setUserName("mchenb");
         userRepository.save(user);
         User foundUser = userRepository.findOne(user.getId());
         assertEquals("Mike", foundUser.getFirstName());
@@ -86,6 +88,7 @@ public class UserRepositoryTest {
     @Test
     public void testUpdateUser() {
         User user = createUser();
+        user.setUserName("mchenc");
         user = userRepository.save(user);
         user.setLastName("ChingChing");
         userRepository.save(user);
@@ -96,6 +99,7 @@ public class UserRepositoryTest {
     @Test
     public void testDeleteUser() {
         User user = createUser();
+        user.setUserName("mchene");
         user = userRepository.save(user);
         userRepository.delete(user.getId());
         assertFalse(userRepository.exists(user.getId()));
@@ -104,6 +108,7 @@ public class UserRepositoryTest {
     @Test
     public void testAddAdminRole() {
         User user = createUser();
+        user.setUserName("mchenf");
         Role admin = createAdminRole();
         user.getRoles().add(admin);
         userRepository.save(user);
@@ -118,6 +123,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindByLastName() {
         User user = createUser();
+        user.setUserName("mcheng");
         userRepository.save(user);
 
         List<User> foundUsers = userRepository.find("Chen");
@@ -129,6 +135,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindAllWithSimilarLastNames() {
         User user = createUser();
+        user.setUserName("mchenh");
         userRepository.save(user);
 
         Iterable<User> users = userRepository.findAll(lastNameIsLike("Ch"));
@@ -139,6 +146,7 @@ public class UserRepositoryTest {
     @Test
     public void testPagination() {
         User user = createUser();
+        user.setUserName("mcheni");
         user.setLastName("ABC");
         userRepository.save(user);
 
