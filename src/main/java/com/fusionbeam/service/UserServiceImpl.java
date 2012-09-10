@@ -1,7 +1,10 @@
 package com.fusionbeam.service;
 
+import com.fusionbeam.database.entity.Role;
 import com.fusionbeam.database.entity.User;
+import com.fusionbeam.database.repository.RoleRepository;
 import com.fusionbeam.database.repository.UserRepository;
+import com.fusionbeam.mvc.model.RoleDTO;
 import com.fusionbeam.mvc.model.UserDTO;
 import com.fusionbeam.service.exceptions.UserNotFoundException;
 import org.slf4j.Logger;
@@ -12,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Declare methods to use to obtain and modify person information
@@ -29,6 +33,9 @@ public class UserServiceImpl implements UserService {
     @Resource
     private UserRepository userRepository;
 
+    @Resource
+    private RoleRepository roleRepository;
+
     public UserRepository getUserRepository() {
         return userRepository;
     }
@@ -43,7 +50,17 @@ public class UserServiceImpl implements UserService {
         LOGGER.debug("Creating a new user with information: " + userDTO);
         User user = constructUser();
         BeanUtils.copyProperties(userDTO, user);
+        for (RoleDTO roleDTO : userDTO.getRoles()) {
+            Role role = convertToEntity(roleDTO);
+            user.getRoles().add(role);
+        }
         return getUserRepository().save(user);
+    }
+
+    protected Role convertToEntity(RoleDTO roleDTO) {
+        Role role = new Role();
+        BeanUtils.copyProperties(roleDTO, role);
+        return role;
     }
 
     protected User constructUser() {
@@ -99,7 +116,29 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException();
         }
         BeanUtils.copyProperties(updated, user);
+        updateAllRoles(updated, user);
         return userRepository.save(user);
+    }
+
+    protected void updateAllRoles(UserDTO updated, User user) {
+        //Remove old entries
+        Set<Role> roles = user.getRoles();
+        for (Role role :  roles) {
+            roles.remove(role);
+        }
+        //Add new ones
+        Set<RoleDTO> roleDTOs = updated.getRoles();
+        for (RoleDTO roleDTO : roleDTOs) {
+            if (roleDTO.getId() != null) {
+                Role role = roleRepository.findOne(roleDTO.getId());
+                if (role != null) {
+                    roles.add(role);
+                }
+            }
+
+        }
+        userRepository.save(user);
+
     }
 
 }

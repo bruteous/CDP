@@ -1,6 +1,8 @@
 package com.fusionbeam.database.entity;
 
 import javax.persistence.Column;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Version;
 import java.util.Date;
 
@@ -39,5 +41,16 @@ public class AuditableImpl implements Auditable {
 
     public long getVersion() {
         return version;
+    }
+    @PreUpdate
+    public void preUpdate() {
+        setLastModifiedTime(new Date());
+    }
+
+    @PrePersist
+    public void prePersist() {
+        Date now = new Date();
+        setCreatedTime(now);
+        setLastModifiedTime(now);
     }
 }

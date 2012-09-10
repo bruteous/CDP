@@ -2,8 +2,17 @@ package com.fusionbeam.database.entity;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -60,18 +69,6 @@ public class User extends AuditableImpl{
         name.append(lastName);
 
         return name.toString();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        setLastModifiedTime(new Date());
-    }
-
-    @PrePersist
-    public void prePersist() {
-        Date now = new Date();
-        setCreatedTime(now);
-        setLastModifiedTime(now);
     }
 
     public Long getId() {

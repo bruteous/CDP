@@ -13,7 +13,7 @@ import java.util.List;
  * Time: 3:54 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface UserService extends GenericService {
+public interface UserService {
     /**
      * Creates a new User.
      * @param userDTO   The information of the created user.

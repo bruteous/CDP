@@ -30,7 +30,8 @@ public class UserServiceTest {
     @Resource
     private UserService userService;
 
-    private static int idCount = 0;
+    @Resource
+    private RoleService roleService;
 
     private UserDTO constructUser() {
         UserDTO userDTO = new UserDTO();
@@ -101,4 +102,8 @@ public class UserServiceTest {
         assertEquals("James", foundUser.getFirstName());
     }
 
+    @Test
+    public void testUpdateRoles() {
+
+    }
 }
